@@ -195,12 +195,14 @@ async def get_points(kill_id):
         attackers_amount = len(esi_data["attackers"])
         involved_penalty = max(1.0, attackers_amount ** 2 / 2)
 
-        print(f"Kill has {attackers_amount} attackers")
+        print(f"Looking at attacker amount:")
+        print(f"Total of {attackers_amount} attacker(s).")
         points /= involved_penalty
         print(
             f"=> Reducing points by {100 * (1 - 1 / involved_penalty):.1f} % to {floor(points)} for the amount of attackers")
 
         # Looking at the Size of each Attacker
+        print("Looking at attacker sizes:")
         characters = 0
         attackers_total_size = 0
         for attacker in esi_data["attackers"]:
@@ -212,12 +214,12 @@ async def get_points(kill_id):
                 characters += 1
                 group_id = await get_group_id(attacker["ship_type_id"], session)
                 rig_size = await get_rig_size(attacker["ship_type_id"], session)
-                print(await get_item_name(attacker["ship_type_id"], session), group_id, rig_size)
                 if group_id == 29:  # Capsule
                     attackers_total_size += 5 ** (rig_size + 1)
+                    print(f"   {await get_item_name(attacker['ship_type_id'], session)} added {5 ** (rig_size + 1)} to enemy size")
                 else:
                     attackers_total_size += 5 ** rig_size
-                print(attackers_total_size)
+                    print(f"   {await get_item_name(attacker['ship_type_id'], session)} added {5 ** rig_size} to enemy size")
 
         if characters == 0:
             print("NPC Killmail -> Giving 1 Point and throwing everything else out the window.")
@@ -225,7 +227,7 @@ async def get_points(kill_id):
 
         average_size = max(1.0, attackers_total_size / attackers_amount)
         print(f"Average attacker size is {average_size}, victim size is {base_points}")
-        ship_size_modifier = min(1.2, max(0.5, base_points / average_size))
+        ship_size_modifier = min(1.2, max(0.5, floor(base_points / average_size)))
         points = floor(points * ship_size_modifier)
         if ship_size_modifier > 1:
             print(
