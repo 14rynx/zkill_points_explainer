@@ -159,7 +159,8 @@ async def get_points(kill_id):
                 return
             esi_data = await response.json(content_type=None)
 
-        base_points = 5 ** (await get_rig_size(esi_data["victim"]["ship_type_id"], session))
+        victim_rig_size = await get_rig_size(esi_data["victim"]["ship_type_id"], session)
+        base_points = 5 ** victim_rig_size
 
         print(f"Ship Base Points: {base_points}")
 
@@ -215,8 +216,8 @@ async def get_points(kill_id):
                 group_id = await get_group_id(attacker["ship_type_id"], session)
                 rig_size = await get_rig_size(attacker["ship_type_id"], session)
                 if group_id == 29:  # Capsule
-                    attackers_total_size += 5 ** (rig_size + 1)
-                    print(f"   {await get_item_name(attacker['ship_type_id'], session)} added {5 ** (rig_size + 1)} to enemy size")
+                    attackers_total_size += 5 ** (victim_rig_size + 1)
+                    print(f"   {await get_item_name(attacker['ship_type_id'], session)} added {5 ** (victim_rig_size + 1)} to enemy size")
                 else:
                     attackers_total_size += 5 ** rig_size
                     print(f"   {await get_item_name(attacker['ship_type_id'], session)} added {5 ** rig_size} to enemy size")
@@ -248,4 +249,4 @@ def explain(kill_id):
     print(f"Resulted in {points}")
 
 
-explain(110850977)
+explain(111032961)
